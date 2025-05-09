@@ -6,19 +6,19 @@
 void TaskScan(void) {
     switch (TaskMark) {
         case InputImp:
-            sendString("CalInputImp()\r\n");
+            //sendString("CalInputImp()\r\n");
             CalInputImp();
             break;
         case OutputImp:
-            sendString("CalOutputImp()\r\n");
+            //sendString("CalOutputImp()\r\n");
             CalOutputImp();
             break;
         case Gain:
-            sendString("CalGain()\r\n");
+            //sendString("CalGain()\r\n");
             CalGain();
             break;
         case AmpFreq:
-            sendString("PlotAmpFreq()\r\n");
+            //sendString("PlotAmpFreq()\r\n");
             PlotAmpFreq();
             break;
         default:
@@ -57,102 +57,180 @@ void BTNScan(void) {
 @brief: 测量输入阻抗
 */
 void CalInputImp(void) {
-    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
-    DL_ADC12_startConversion(ADC12_0_INST);
-    //阻塞执行
-    while(TaskMark == InputImp) {
-        if(gCheckADC) {
+    switch (InputImpState) {
+        case IDLE:
+            NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
+            DL_ADC12_enableConversions(ADC12_0_INST);
+            DL_ADC12_startConversion(ADC12_0_INST);
+            InputImpState = WAIT;
+            break;
+        case WAIT:
+            if(gCheckADC) {
+                InputImpState = PROCESS;
+            }
+            break;
+        case PROCESS:
             uint16_t InVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_0);
             float InAmp = AD8310_Map((float)InVol * 3300 / 4095);
-
-            float R_i = InAmp / (SIGNAL_IN_mVPP - InAmp) * RESISTOR_IN;      //通过串联分压计算放大器输入电阻
+            float R_i = InAmp / (SIGNAL_IN_mVPP - InAmp) * RESISTOR_IN;
             c_param.Ri = R_i;
             sendString("Input Resistor: "); sendNum(R_i, 2); sendString("\r\n");
 
             gCheckADC = false;
-            DL_ADC12_enableConversions(ADC12_0_INST);
-            DL_ADC12_startConversion(ADC12_0_INST);
-        }            
+            InputImpState = IDLE;
+            break;
     }
-    NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN); //关闭ADC中断
+    //按键打断当前任务
+    if(TaskMark != InputImp) {
+        InputImpState = IDLE;
+        NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
+    }
 }
 
 /*
 @brief: 测量输出阻抗
 */
 void CalOutputImp(void) {
-    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
-    DL_ADC12_startConversion(ADC12_0_INST);
-    Out_state = Load;       //初始化为带负载
-    Vout_flag = false;
-    //阻塞执行
-    while(TaskMark == OutputImp) {
-        if(Vout_flag) {
-            c_param.Ro = (Vout_Open / Vout_Load - 1) * RESISTOR_LOAD;
-            sendString("Output Resistor: "); sendNum(c_param.Ro, 2); sendString("\r\n");
-            Vout_flag = false;
-        }
-        if(gCheckADC) {
-            if(Out_state == Load) {
-                //先测量带负载电压
-                uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
-                Vout_Load = AD8310_Map((float)OutVol * 3300 / 4095);
-                Out_state = Open;
-            }
-            else if(Out_state == Open) {
-                //再测量负载开路电压
-                DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);     //控制继电器使负载开路
-                delay_ms(50);   //稳定时间
-                uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_0);
-                Vout_Open = AD8310_Map((float)OutVol * 3300 / 4095);
-                Vout_flag = true;
-            }
-
-            gCheckADC = false;
+    switch (OutputImpState) {
+        case IDLE:
+            NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
+            DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);
             DL_ADC12_enableConversions(ADC12_0_INST);
             DL_ADC12_startConversion(ADC12_0_INST);
-        }
+            Out_state = Open;       //先测量开路的输出电压
+            Vout_flag = false;
+            OutputImpState = WAIT;
+            break;
+        case WAIT:
+            if(gCheckADC) {
+                OutputImpState = PROCESS;
+            }
+            break;
+        case PROCESS:
+            if(Out_state == Open) {
+                uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+                Vout_Open = AD8310_Map((float)OutVol * 3300 / 4095);
+                Out_state = Load;
+
+                DL_GPIO_setPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //吸合继电器 -> 连接负载
+                delay_ms(50);   //稳定延时
+                DL_ADC12_enableConversions(ADC12_0_INST);
+                DL_ADC12_startConversion(ADC12_0_INST);
+                gCheckADC = false;
+                OutputImpState = WAIT;
+            }
+            else if(Out_state == Load) {
+                uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+                Vout_Load = AD8310_Map((float)OutVol * 3300 / 4095);
+                float R_o = (Vout_Open / Vout_Load - 1.0f) * RESISTOR_LOAD;
+                c_param.Ro = R_o;
+
+                sendString("Output Resistor: "); sendNum(R_o, 2); sendString("\r\n");
+
+                gCheckADC = false;
+                OutputImpState = IDLE;
+                DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //断开负载
+            }
+            break;
     }
-    DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);
-    NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN); //关闭ADC中断
+    if(TaskMark != OutputImp) {
+        OutputImpState = IDLE;
+        NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
+        DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //断开负载
+    }
 }
 
 /*
 @brief: 测量增益
 */
 void CalGain(void) {
-    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
-    DL_ADC12_startConversion(ADC12_0_INST);
-    //阻塞执行
-    while(TaskMark == Gain) {
-        if(gCheckADC) {
-            uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
-            float OutAmp = AD8310_Map((float)OutVol * 3300 / 4095);
-            float Gain = OutAmp / SIGNAL_IN_mVPP;  //DDS输入信号恒定500mVpp
-            //发送数据
-            sendString("Gain: ");sendNum(Gain, 2);sendString("\r\n");
-
-            gCheckADC = false;
+    switch (GainState) {
+        case IDLE:
+            NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
             DL_ADC12_enableConversions(ADC12_0_INST);
             DL_ADC12_startConversion(ADC12_0_INST);
-        }
+            GainState = WAIT;
+            break;
+        case WAIT:
+            if(gCheckADC) {
+                GainState = PROCESS;
+            }
+            break;
+        case PROCESS:
+            uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+            float OutAmp = AD8310_Map((float)OutVol * 3300 / 4095);
+            float Gain = OutAmp / SIGNAL_IN_mVPP;
+            c_param.Av = Gain;
+
+            sendString("Gain: "); sendNum(Gain, 2); sendString("\r\n");
+
+            gCheckADC = false;
+            GainState = IDLE;
+            NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
+            break;
     }
-    NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN); //关闭ADC中断
+    if(TaskMark != Gain) {
+        GainState = IDLE;
+        NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
+    }
 }
 
 /*
 @brief: 绘制幅频曲线
 */
 void PlotAmpFreq(void) {
-    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
-    NVIC_EnableIRQ(UART_0_INST_INT_IRQN);   //使能串口接收中断
-    while(TaskMark == AmpFreq) {
-        if(gCheckADC) {
+    switch (PlotState) {
+        case WAIT_COMMAND:
+            NVIC_EnableIRQ(UART_0_INST_INT_IRQN);   //开启串口中断
+            NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
+            if(uart_rx_finish) {
+                parse_rx_buffer((char *)uart_rx_buffer, &input_freq, &input_amp);
+                uart_rx_finish = false;
+                uart_rx_index = 0;
+                NVIC_DisableIRQ(UART_0_INST_INT_IRQN);  //关闭中断直到采样完成
+                PlotState = START_ADC;
+            }
+            break;
+        case START_ADC:
+            DL_ADC12_enableConversions(ADC12_0_INST);
+            DL_ADC12_startConversion(ADC12_0_INST);
+            PlotState = WAIT_ADC;
+            break;
+        case WAIT_ADC:
+            if(gCheckADC) {
+                gCheckADC = false;
+                PlotState = DRAW_POINT;
+            }
+            break;
+        case DRAW_POINT:
+            uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+            float OutAmp = AD8310_Map((float)OutVol * 3300 / 4095);
+            float gain = OutAmp / input_amp;
+            if(point_index < MAX_POINTS) {
+                freq_buffer[point_index] = input_freq;
+                gain_buffer[point_index] = gain;
+                point_index++;
+            }
+            uint16_t x = mapFreqToX(input_freq);
+            uint16_t y = mapGainToY(gain);
             
-        }
+            if(lastX >= 0) {
+                //画线
+            }
+            else {
+                //画线
+            }
+            lastX = x; lastY = y;
+            PlotState = WAIT_COMMAND;
+            break;
     }
-    NVIC_DisableIRQ(UART_0_INST_INT_IRQN);  //关闭串口接收中断
-    NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN); //关闭ADC中断
+    if(TaskMark != AmpFreq) {
+        PlotState = WAIT_COMMAND;
+        point_index = 0;
+        lastX = lastY = -1;
+        NVIC_DisableIRQ(UART_0_INST_INT_IRQN);
+        NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
+    }
 }
 
 /*
@@ -174,4 +252,18 @@ float AD8310_Map(float Amp) {
 void parse_rx_buffer(char* buffer, float* freq, float* mag) {
     *freq = strtof(buffer, NULL);
     *mag = strtof(strchr(buffer, ' ') + 1, NULL);
+}
+
+/*
+@brief: 将频率映射到显示屏的X坐标
+*/
+uint16_t mapFreqToX(float freq) {
+
+}
+
+/*
+@brief: 将增益映射到显示屏的Y坐标
+*/
+uint16_t mapGainToY(float gain) {
+
 }

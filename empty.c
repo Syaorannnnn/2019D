@@ -7,16 +7,29 @@
 #include <stdlib.h>
 
 volatile bool gCheckADC = false;
+
 volatile bool uart_rx_finish = false;
 volatile char uart_rx_buffer[RX_BUFFER_SIZE];
 volatile uint8_t uart_rx_index = 0;
 
 Circuit_Paramter c_param = {0.0};
+TaskState_t InputImpState = IDLE;
+TaskState_t OutputImpState = IDLE;
+TaskState_t GainState = IDLE;
 
 volatile uint8_t Out_state = Load;
 volatile float Vout_Load = 0.0;     //接入负载时的输出电压
 volatile float Vout_Open = 0.0;     //负载开路时的输出电压
 volatile bool Vout_flag = false;    //是否测量完成开路和负载输出电压的标志位
+
+PlotState_t PlotState = WAIT_COMMAND;
+volatile uint16_t point_index = 0;
+volatile uint16_t lastX = -1;
+volatile uint16_t lastY = -1;
+volatile float input_freq = 0.0;    //串口接收到的输入信号的频率
+volatile float input_amp = 0.0;     //串口接收到的输入信号的幅值
+volatile float freq_buffer[MAX_POINTS];
+volatile float gain_buffer[MAX_POINTS];
 
 BTNData_t BTNData = {0};
 
