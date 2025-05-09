@@ -4,6 +4,7 @@
 "./USER/BTN/BTN.o"
 "./USER/TICK/Tick.o"
 "./USER/UART/UART.o"
+"./USER/USERTASK/UserTask.o"
 -l"./device_linker.cmd"
 -ldevice.cmd.genlibs
 -llibc.a

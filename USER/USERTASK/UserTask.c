@@ -63,12 +63,45 @@ void CalOutputImp(void) {
 @brief: 测量增益
 */
 void CalGain(void) {
+    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
+    //阻塞执行
+    while(TaskMark == Gain) {
+        if(gCheckADC) {
+            uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+            float OutAmp = AD8310_Map((float)OutVol * 3300 / 4095);
+            float Gain = OutAmp / 500;  //DDS输入信号恒定500mVpp
+            //发送数据
+            sendString("Gain: ");sendNum(Gain, 2);sendString("\r\n");
 
+            gCheckADC = false;
+            DL_ADC12_enableConversions(ADC12_0_INST);
+            DL_ADC12_startConversion(ADC12_0_INST);
+        }
+    }
+    NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN); //关闭ADC中断
 }
 
 /*
 @brief: 绘制幅频曲线
 */
 void PlotAmpFreq(void) {
-    
+    NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
+    NVIC_EnableIRQ(UART_0_INST_INT_IRQN);   //使能串口接收中断
+    while(TaskMark == AmpFreq) {
+        if(gCheckADC) {
+            
+        }
+
+    }
+    NVIC_DisableIRQ(UART_0_INST_INT_IRQN);  //关闭串口接收中断
+    NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN); //关闭ADC中断
+}
+
+/*
+@brief: AD8310输出电平 -> 输入信号幅值
+*/
+float AD8310_Map(float Amp) {
+    float res = 0.0;
+
+    return Amp;
 }

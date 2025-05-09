@@ -1,6 +1,7 @@
 # FIXED
 
-empty.o: ../empty.c \
+USER/USERTASK/UserTask.o: ../USER/USERTASK/UserTask.c \
+ ../USER/USERTASK/UserTask.h \
  ti_msp_dl_config.h \
  D:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h \
  D:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/DeviceFamily.h \
@@ -78,8 +79,8 @@ empty.o: ../empty.c \
  C:/Users/1/workspace_ccstheia/2019D/USER/UART/UART.h \
  C:/Users/1/workspace_ccstheia/2019D/USER/BTN/BTN.h \
  C:/Users/1/workspace_ccstheia/2019D/USER/TICK/Tick.h \
- C:/Users/1/workspace_ccstheia/2019D/USER/BTN/BTN.h \
- C:/Users/1/workspace_ccstheia/2019D/USER/USERTASK/UserTask.h
+ C:/Users/1/workspace_ccstheia/2019D/USER/BTN/BTN.h
+../USER/USERTASK/UserTask.h:
 ti_msp_dl_config.h:
 D:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h:
 D:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/DeviceFamily.h:
@@ -158,4 +159,3 @@ C:/Users/1/workspace_ccstheia/2019D/USER/UART/UART.h:
 C:/Users/1/workspace_ccstheia/2019D/USER/BTN/BTN.h:
 C:/Users/1/workspace_ccstheia/2019D/USER/TICK/Tick.h:
 C:/Users/1/workspace_ccstheia/2019D/USER/BTN/BTN.h:
-C:/Users/1/workspace_ccstheia/2019D/USER/USERTASK/UserTask.h:

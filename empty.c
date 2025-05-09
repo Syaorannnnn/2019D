@@ -2,10 +2,9 @@
 #include "../USER/UART/UART.h"
 #include "../USER/BTN/BTN.h"
 #include "../USER/TICK/Tick.h"
+#include "../USER/USERTASK/UserTask.h"
 #include <string.h>
 #include <stdlib.h>
-
-#define RX_BUFFER_SIZE 30
 
 void parse_rx_buffer(char* , float* , float* );
 
