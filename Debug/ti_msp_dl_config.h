@@ -73,14 +73,17 @@ extern "C" {
 #define POWER_STARTUP_DELAY                                                (16)
 
 
-
-#define CPUCLK_FREQ                                                     32000000
+#define GPIO_HFCLKIN_PORT                                                  GPIOA
+#define GPIO_HFCLKIN_PIN                                           DL_GPIO_PIN_6
+#define GPIO_HFCLKIN_IOMUX                                       (IOMUX_PINCM11)
+#define GPIO_HFCLKIN_IOMUX_FUNC                  IOMUX_PINCM11_PF_SYSCTL_HFCLKIN
+#define CPUCLK_FREQ                                                     80000000
 
 
 
 /* Defines for UART_0 */
 #define UART_0_INST                                                        UART2
-#define UART_0_INST_FREQUENCY                                           32000000
+#define UART_0_INST_FREQUENCY                                           40000000
 #define UART_0_INST_IRQHandler                                  UART2_IRQHandler
 #define UART_0_INST_INT_IRQN                                      UART2_INT_IRQn
 #define GPIO_UART_0_RX_PORT                                                GPIOB
@@ -92,11 +95,11 @@ extern "C" {
 #define GPIO_UART_0_IOMUX_RX_FUNC                      IOMUX_PINCM44_PF_UART2_RX
 #define GPIO_UART_0_IOMUX_TX_FUNC                      IOMUX_PINCM43_PF_UART2_TX
 #define UART_0_BAUD_RATE                                                (115200)
-#define UART_0_IBRD_32_MHZ_115200_BAUD                                      (17)
-#define UART_0_FBRD_32_MHZ_115200_BAUD                                      (23)
+#define UART_0_IBRD_40_MHZ_115200_BAUD                                      (21)
+#define UART_0_FBRD_40_MHZ_115200_BAUD                                      (45)
 /* Defines for UART_1 */
 #define UART_1_INST                                                        UART0
-#define UART_1_INST_FREQUENCY                                           32000000
+#define UART_1_INST_FREQUENCY                                           40000000
 #define UART_1_INST_IRQHandler                                  UART0_IRQHandler
 #define UART_1_INST_INT_IRQN                                      UART0_INT_IRQn
 #define GPIO_UART_1_RX_PORT                                                GPIOA
@@ -108,8 +111,8 @@ extern "C" {
 #define GPIO_UART_1_IOMUX_RX_FUNC                       IOMUX_PINCM2_PF_UART0_RX
 #define GPIO_UART_1_IOMUX_TX_FUNC                       IOMUX_PINCM1_PF_UART0_TX
 #define UART_1_BAUD_RATE                                                (115200)
-#define UART_1_IBRD_32_MHZ_115200_BAUD                                      (17)
-#define UART_1_FBRD_32_MHZ_115200_BAUD                                      (23)
+#define UART_1_IBRD_40_MHZ_115200_BAUD                                      (21)
+#define UART_1_FBRD_40_MHZ_115200_BAUD                                      (45)
 
 
 
@@ -162,6 +165,15 @@ extern "C" {
 /* Defines for MID: GPIOB.14 with pinCMx 31 on package pin 24 */
 #define GPIO_BTN_MID_PIN                                        (DL_GPIO_PIN_14)
 #define GPIO_BTN_MID_IOMUX                                       (IOMUX_PINCM31)
+/* Port definition for Pin Group GPIO_CON */
+#define GPIO_CON_PORT                                                    (GPIOA)
+
+/* Defines for IN: GPIOA.8 with pinCMx 19 on package pin 16 */
+#define GPIO_CON_IN_PIN                                          (DL_GPIO_PIN_8)
+#define GPIO_CON_IN_IOMUX                                        (IOMUX_PINCM19)
+/* Defines for OUT: GPIOA.9 with pinCMx 20 on package pin 17 */
+#define GPIO_CON_OUT_PIN                                         (DL_GPIO_PIN_9)
+#define GPIO_CON_OUT_IOMUX                                       (IOMUX_PINCM20)
 
 
 

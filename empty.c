@@ -6,15 +6,17 @@
 #include <string.h>
 #include <stdlib.h>
 
-void parse_rx_buffer(char* , float* , float* );
-
 volatile bool gCheckADC = false;
 volatile bool uart_rx_finish = false;
 volatile char uart_rx_buffer[RX_BUFFER_SIZE];
 volatile uint8_t uart_rx_index = 0;
 
-volatile float freq = 0.0;
-volatile float mag = 0.0;
+Circuit_Paramter c_param = {0.0};
+
+volatile uint8_t Out_state = Load;
+volatile float Vout_Load = 0.0;     //接入负载时的输出电压
+volatile float Vout_Open = 0.0;     //负载开路时的输出电压
+volatile bool Vout_flag = false;    //是否测量完成开路和负载输出电压的标志位
 
 BTNData_t BTNData = {0};
 
@@ -27,14 +29,8 @@ int main(void)
 
     while (1)
     {
-		if(uart_rx_finish) {
-            parse_rx_buffer(uart_rx_buffer, &freq, &mag);
-            sendString("freq: ");sendNum(freq, 2); sendString("\t");
-            sendString("mag: ");sendNum(mag, 2); sendString("\r\n");
-
-            NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
-            uart_rx_finish = false;
-        }
+		BTNScan();
+        TaskScan();
     }
 }
 
@@ -67,15 +63,4 @@ void ADC12_0_INST_IRQHandler(void) {
         default:
             break;
     }
-}
-
-/*
-@brief: 将串口接收的信号相关信息解包
-@param: buffer - 串口缓冲区指针
-@param: freq - 频率
-@param: mag - 幅度
-*/
-void parse_rx_buffer(char* buffer, float* freq, float* mag) {
-    *freq = strtof(buffer, NULL);
-    *mag = strtof(strchr(buffer, ' ') + 1, NULL);
 }
