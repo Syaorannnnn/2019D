@@ -10,7 +10,7 @@
 
 #define RX_BUFFER_SIZE 30
 #define SIGNAL_IN_mVPP  500.f
-#define RESISTOR_IN    1000.0f     //信号源与放大器之间串联的电阻大小
+#define RESISTOR_IN    3300.0f     //信号源与放大器之间串联的电阻大小
 #define RESISTOR_LOAD  1000.0f     //放大器负载电路大小
 
 #define MAX_POINTS  64      //扫频点数

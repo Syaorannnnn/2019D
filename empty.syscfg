@@ -152,9 +152,7 @@ UART2.rxPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric5";
 
 UART3.targetBaudRate                   = 115200;
 UART3.$name                            = "UART_1";
-UART3.peripheral.$assign               = "UART1";
-UART3.peripheral.rxPin.$assign         = "PA18";
-UART3.peripheral.txPin.$assign         = "PA17";
+UART3.peripheral.$assign               = "UART3";
 UART3.txPinConfig.direction            = scripting.forceWrite("OUTPUT");
 UART3.txPinConfig.hideOutputInversion  = scripting.forceWrite(false);
 UART3.txPinConfig.onlyInternalResistor = scripting.forceWrite(false);
@@ -184,3 +182,5 @@ GPIO2.associatedPins[3].pin.$suggestSolution        = "PB9";
 GPIO2.associatedPins[4].pin.$suggestSolution        = "PB14";
 GPIO3.associatedPins[0].pin.$suggestSolution        = "PA8";
 GPIO3.associatedPins[1].pin.$suggestSolution        = "PA9";
+UART3.peripheral.rxPin.$suggestSolution             = "PA13";
+UART3.peripheral.txPin.$suggestSolution             = "PA14";

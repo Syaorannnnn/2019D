@@ -40,6 +40,8 @@
 
 #include "ti_msp_dl_config.h"
 
+DL_UART_Main_backupConfig gUART_1Backup;
+
 /*
  *  ======== SYSCFG_DL_init ========
  *  Perform any initialization needed before using any board APIs
@@ -55,9 +57,32 @@ SYSCONFIG_WEAK void SYSCFG_DL_init(void)
     SYSCFG_DL_UART_1_init();
     SYSCFG_DL_ADC12_0_init();
     SYSCFG_DL_SYSTICK_init();
+    /* Ensure backup structures have no valid state */
+	gUART_1Backup.backupRdy 	= false;
+
+}
+/*
+ * User should take care to save and restore register configuration in application.
+ * See Retention Configuration section for more details.
+ */
+SYSCONFIG_WEAK bool SYSCFG_DL_saveConfiguration(void)
+{
+    bool retStatus = true;
+
+	retStatus &= DL_UART_Main_saveConfiguration(UART_1_INST, &gUART_1Backup);
+
+    return retStatus;
 }
 
 
+SYSCONFIG_WEAK bool SYSCFG_DL_restoreConfiguration(void)
+{
+    bool retStatus = true;
+
+	retStatus &= DL_UART_Main_restoreConfiguration(UART_1_INST, &gUART_1Backup);
+
+    return retStatus;
+}
 
 SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
 {
@@ -278,7 +303,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_UART_1_init(void)
      *  Actual baud rate: 115190.78
      */
     DL_UART_Main_setOversampling(UART_1_INST, DL_UART_OVERSAMPLING_RATE_16X);
-    DL_UART_Main_setBaudRateDivisor(UART_1_INST, UART_1_IBRD_40_MHZ_115200_BAUD, UART_1_FBRD_40_MHZ_115200_BAUD);
+    DL_UART_Main_setBaudRateDivisor(UART_1_INST, UART_1_IBRD_80_MHZ_115200_BAUD, UART_1_FBRD_80_MHZ_115200_BAUD);
 
 
 

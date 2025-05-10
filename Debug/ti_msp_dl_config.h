@@ -114,21 +114,21 @@ extern "C" {
 #define UART_0_IBRD_40_MHZ_115200_BAUD                                      (21)
 #define UART_0_FBRD_40_MHZ_115200_BAUD                                      (45)
 /* Defines for UART_1 */
-#define UART_1_INST                                                        UART1
-#define UART_1_INST_FREQUENCY                                           40000000
-#define UART_1_INST_IRQHandler                                  UART1_IRQHandler
-#define UART_1_INST_INT_IRQN                                      UART1_INT_IRQn
+#define UART_1_INST                                                        UART3
+#define UART_1_INST_FREQUENCY                                           80000000
+#define UART_1_INST_IRQHandler                                  UART3_IRQHandler
+#define UART_1_INST_INT_IRQN                                      UART3_INT_IRQn
 #define GPIO_UART_1_RX_PORT                                                GPIOA
 #define GPIO_UART_1_TX_PORT                                                GPIOA
-#define GPIO_UART_1_RX_PIN                                        DL_GPIO_PIN_18
-#define GPIO_UART_1_TX_PIN                                        DL_GPIO_PIN_17
-#define GPIO_UART_1_IOMUX_RX                                     (IOMUX_PINCM40)
-#define GPIO_UART_1_IOMUX_TX                                     (IOMUX_PINCM39)
-#define GPIO_UART_1_IOMUX_RX_FUNC                      IOMUX_PINCM40_PF_UART1_RX
-#define GPIO_UART_1_IOMUX_TX_FUNC                      IOMUX_PINCM39_PF_UART1_TX
+#define GPIO_UART_1_RX_PIN                                        DL_GPIO_PIN_13
+#define GPIO_UART_1_TX_PIN                                        DL_GPIO_PIN_14
+#define GPIO_UART_1_IOMUX_RX                                     (IOMUX_PINCM35)
+#define GPIO_UART_1_IOMUX_TX                                     (IOMUX_PINCM36)
+#define GPIO_UART_1_IOMUX_RX_FUNC                      IOMUX_PINCM35_PF_UART3_RX
+#define GPIO_UART_1_IOMUX_TX_FUNC                      IOMUX_PINCM36_PF_UART3_TX
 #define UART_1_BAUD_RATE                                                (115200)
-#define UART_1_IBRD_40_MHZ_115200_BAUD                                      (21)
-#define UART_1_FBRD_40_MHZ_115200_BAUD                                      (45)
+#define UART_1_IBRD_80_MHZ_115200_BAUD                                      (43)
+#define UART_1_FBRD_80_MHZ_115200_BAUD                                      (26)
 
 
 

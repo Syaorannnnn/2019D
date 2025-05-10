@@ -38,7 +38,6 @@ volatile uint8_t TaskMark = 0;  //执行任务标志位，初始不执行任何�
 int main(void)
 {
     SYSCFG_DL_init();  
-	//NVIC_EnableIRQ(UART_0_INST_INT_IRQN);
 
     while (1)
     {
