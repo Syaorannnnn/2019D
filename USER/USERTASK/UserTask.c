@@ -258,12 +258,19 @@ void parse_rx_buffer(char* buffer, float* freq, float* mag) {
 @brief: 将频率映射到显示屏的X坐标
 */
 uint16_t mapFreqToX(float freq) {
-
+    float logF = log10f(freq);
+    float logStart = log10f(FREQ_START);
+    float logEnd = log10f(FREQ_END);
+    uint16_t res = (uint16_t)(((logF - logStart) / (logEnd - logStart)) * 1 /*此处应为显示屏的宽度*/);
+    return res;
 }
 
 /*
 @brief: 将增益映射到显示屏的Y坐标
 */
 uint16_t mapGainToY(float gain) {
-
+    if(gain > GAIN_MAX) gain = GAIN_MAX;
+    if(gain < 0) gain = 0;
+    uint16_t res = (uint16_t)((1.0f - gain / GAIN_MAX) * 1 /*此处应为显示屏的高度*/);
+    return res;
 }
