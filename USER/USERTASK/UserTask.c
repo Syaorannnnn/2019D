@@ -71,8 +71,10 @@ void CalInputImp(void) {
             break;
         case PROCESS:
             uint16_t InVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_0);
+            //sendNum(InVol, 2);  sendString("\r\n");
             float InAmp = AD8310_Map((float)InVol * 3300 / 4095);
             float R_i = InAmp / (SIGNAL_IN_mVPP - InAmp) * RESISTOR_IN;
+            R_i = 1 / (1 / R_i - 1 / RESISTOR_BING);
             c_param.Ri = R_i;
             sendString("Input Resistor: "); sendNum(R_i, 2); sendString("\r\n");
 
@@ -95,6 +97,7 @@ void CalOutputImp(void) {
         case IDLE:
             NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
             DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);
+            DL_Common_delayCycles(32000000);    //延时1s
             DL_ADC12_enableConversions(ADC12_0_INST);
             DL_ADC12_startConversion(ADC12_0_INST);
             Out_state = Open;       //先测量开路的输出电压
@@ -109,11 +112,26 @@ void CalOutputImp(void) {
         case PROCESS:
             if(Out_state == Open) {
                 uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
-                Vout_Open = AD8310_Map((float)OutVol * 3300 / 4095);
-                Out_state = Load;
+                float vout_open = AD8310_Map((float)OutVol * 3300 / 4095);
+                sendString("Vout_Open: "); sendNum(vout_open, 2); sendString("\r\n");
+                
+                count_open++;
+                if(count_open >= ADC_NUM - 1) {
+                    Vout_Open = 0.0;
+                    for(int i = 0; i < ADC_NUM; i++) {
+                        Vout_Open += Vout_Open_buffer[i];
+                    }
+                    Vout_Open /= ADC_NUM;
+                    vout_index = 0;
+                    Out_state = Load;
+                    DL_GPIO_setPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //吸合继电器 -> 连接负载
+                    DL_Common_delayCycles(32000000);    //延时1s
+                    count_open = 0;
+                }
+                else {
+                    Vout_Open_buffer[vout_index++] = vout_open;
+                }
 
-                DL_GPIO_setPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //吸合继电器 -> 连接负载
-                delay_ms(50);   //稳定延时
                 DL_ADC12_enableConversions(ADC12_0_INST);
                 DL_ADC12_startConversion(ADC12_0_INST);
                 gCheckADC = false;
@@ -121,15 +139,31 @@ void CalOutputImp(void) {
             }
             else if(Out_state == Load) {
                 uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
-                Vout_Load = AD8310_Map((float)OutVol * 3300 / 4095);
-                float R_o = (Vout_Open / Vout_Load - 1.0f) * RESISTOR_LOAD;
-                c_param.Ro = R_o;
+                float vout_load = AD8310_Map((float)OutVol * 3300 / 4095);
+                sendString("Vout_Load: "); sendNum(vout_load, 2); sendString("\r\n");
 
-                sendString("Output Resistor: "); sendNum(R_o, 2); sendString("\r\n");
-
-                gCheckADC = false;
-                OutputImpState = IDLE;
-                DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //断开负载
+                count_load++;
+                if(count_load >= ADC_NUM - 1) {
+                    Vout_Load = 0.0;
+                    for(int i = 0; i < ADC_NUM; i++) {
+                        Vout_Load += Vout_Load_buffer[i];
+                    }
+                    Vout_Load /= ADC_NUM;
+                    vout_index = 0;
+                    count_load = 0;
+                    float R_o = (Vout_Open / Vout_Load - 1.0f) * RESISTOR_LOAD;
+                    c_param.Ro = R_o;
+                    sendString("Output Resistor: "); sendNum(R_o, 2); sendString("\r\n");
+                    OutputImpState = IDLE;
+                    gCheckADC = false;
+                }
+                else {
+                    Vout_Load_buffer[vout_index++] = vout_load;
+                    gCheckADC = false;
+                    OutputImpState = WAIT;
+                    DL_ADC12_enableConversions(ADC12_0_INST);
+                    DL_ADC12_startConversion(ADC12_0_INST);
+                }
             }
             break;
     }
@@ -137,6 +171,7 @@ void CalOutputImp(void) {
         OutputImpState = IDLE;
         NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
         DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //断开负载
+        DL_Common_delayCycles(32000000);    //延时1s
     }
 }
 
@@ -149,6 +184,8 @@ void CalGain(void) {
             NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
             DL_ADC12_enableConversions(ADC12_0_INST);
             DL_ADC12_startConversion(ADC12_0_INST);
+            DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //断开负载
+            DL_Common_delayCycles(32000000);    //延时1s
             GainState = WAIT;
             break;
         case WAIT:
@@ -239,7 +276,8 @@ void PlotAmpFreq(void) {
 float AD8310_Map(float Amp) {
     float res = 0.0;
     //拟合公式: Vout = 491.7170 * log10(Vin) + 930.7041
-    res = 491.7170 * log10(Amp) + 930.7041;
+    //res = 491.7170 * log10(Amp) + 930.7041;
+    res = pow(10, (Amp - 930.7041) / 491.7170);
     return res;
 }
 

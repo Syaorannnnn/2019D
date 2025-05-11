@@ -21,6 +21,11 @@ volatile uint8_t Out_state = Load;
 volatile float Vout_Load = 0.0;     //接入负载时的输出电压
 volatile float Vout_Open = 0.0;     //负载开路时的输出电压
 volatile bool Vout_flag = false;    //是否测量完成开路和负载输出电压的标志位
+volatile uint8_t count_open = 0;    //负载开路adc采样点数
+volatile uint8_t count_load = 0;    //负载接入adc采样点数   采样5个点切换负载的接入状态
+volatile float Vout_Load_buffer[ADC_NUM];
+volatile float Vout_Open_buffer[ADC_NUM];
+volatile uint8_t vout_index = 0;
 
 PlotState_t PlotState = WAIT_COMMAND;
 volatile uint16_t point_index = 0;

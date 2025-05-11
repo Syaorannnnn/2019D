@@ -9,9 +9,11 @@
 #include <stdlib.h>
 
 #define RX_BUFFER_SIZE 30
-#define SIGNAL_IN_mVPP  500.f
+#define ADC_NUM     5       //测量输出电阻时，开路和负载采样的点数  
+#define SIGNAL_IN_mVPP  62.0f
+#define RESISTOR_BING   10000.0f    //与输入串联电阻并联的电阻
 #define RESISTOR_IN    3300.0f     //信号源与放大器之间串联的电阻大小
-#define RESISTOR_LOAD  1000.0f     //放大器负载电路大小
+#define RESISTOR_LOAD  2000.0f     //放大器负载电路大小
 
 #define MAX_POINTS  64      //扫频点数
 #define GAIN_MAX 200.0f     //最大增益
@@ -68,6 +70,11 @@ extern volatile uint8_t Out_state;
 extern volatile float Vout_Load;     //接入负载时的输出电压
 extern volatile float Vout_Open;     //负载开路时的输出电压
 extern volatile bool Vout_flag;      //是否测量完成开路和负载输出电压的标志位
+extern volatile uint8_t count_open;
+extern volatile uint8_t count_load;
+extern volatile float Vout_Load_buffer[ADC_NUM];
+extern volatile float Vout_Open_buffer[ADC_NUM];
+extern volatile uint8_t vout_index;
 
 //绘制增益曲线需要的全局变量
 extern PlotState_t PlotState;

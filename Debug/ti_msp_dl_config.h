@@ -135,9 +135,9 @@ extern "C" {
 
 
 /* Defines for ADC12_0 */
-#define ADC12_0_INST                                                        ADC1
-#define ADC12_0_INST_IRQHandler                                  ADC1_IRQHandler
-#define ADC12_0_INST_INT_IRQN                                    (ADC1_INT_IRQn)
+#define ADC12_0_INST                                                        ADC0
+#define ADC12_0_INST_IRQHandler                                  ADC0_IRQHandler
+#define ADC12_0_INST_INT_IRQN                                    (ADC0_INT_IRQn)
 #define ADC12_0_ADCMEM_0                                      DL_ADC12_MEM_IDX_0
 #define ADC12_0_ADCMEM_0_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC12_0_ADCMEM_0_REF_VOLTAGE_V                                       3.3
@@ -145,9 +145,9 @@ extern "C" {
 #define ADC12_0_ADCMEM_1_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC12_0_ADCMEM_1_REF_VOLTAGE_V                                       3.3
 #define GPIO_ADC12_0_C0_PORT                                               GPIOA
-#define GPIO_ADC12_0_C0_PIN                                       DL_GPIO_PIN_15
+#define GPIO_ADC12_0_C0_PIN                                       DL_GPIO_PIN_27
 #define GPIO_ADC12_0_C1_PORT                                               GPIOA
-#define GPIO_ADC12_0_C1_PIN                                       DL_GPIO_PIN_16
+#define GPIO_ADC12_0_C1_PIN                                       DL_GPIO_PIN_26
 
 
 
