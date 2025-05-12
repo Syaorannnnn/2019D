@@ -4,7 +4,7 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := D:/ccs2011/ccs/tools/compiler/ti-cgt-armllvm_4.0.2.LTS
+CG_TOOL_ROOT := C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS
 
 GEN_OPTS__FLAG := @"./device.opt" 
 GEN_CMDS__FLAG := -Wl,-l"./device_linker.cmd" 
@@ -14,6 +14,7 @@ ORDERED_OBJS += \
 "./ti_msp_dl_config.o" \
 "./startup_mspm0g350x_ticlang.o" \
 "./USER/BTN/BTN.o" \
+"./USER/GUI/GUI.o" \
 "./USER/SRC/tjc_usart_hmi.o" \
 "./USER/TICK/Tick.o" \
 "./USER/UART/UART.o" \
@@ -31,12 +32,14 @@ RMDIR := RMDIR /S/Q
 -include sources.mk
 -include subdir_vars.mk
 -include USER/BTN/subdir_vars.mk
+-include USER/GUI/subdir_vars.mk
 -include USER/SRC/subdir_vars.mk
 -include USER/TICK/subdir_vars.mk
 -include USER/UART/subdir_vars.mk
 -include USER/USERTASK/subdir_vars.mk
 -include subdir_rules.mk
 -include USER/BTN/subdir_rules.mk
+-include USER/GUI/subdir_rules.mk
 -include USER/SRC/subdir_rules.mk
 -include USER/TICK/subdir_rules.mk
 -include USER/UART/subdir_rules.mk
@@ -151,15 +154,15 @@ all: $(OBJS) $(GEN_CMDS)
 2019D.out: $(OBJS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: Arm Linker'
-	"D:/ccs2011/ccs/tools/compiler/ti-cgt-armllvm_4.0.2.LTS/bin/tiarmclang.exe" @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -gdwarf-3 -Wl,-m"2019D.map" -Wl,-i"D:/ti/mspm0_sdk_2_04_00_06/source" -Wl,-i"C:/Users/1/workspace_ccstheia/2019D" -Wl,-i"C:/Users/1/workspace_ccstheia/2019D/Debug/syscfg" -Wl,-i"D:/ccs2011/ccs/tools/compiler/ti-cgt-armllvm_4.0.2.LTS/lib" -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="2019D_linkInfo.xml" -Wl,--rom_model -o "2019D.out" $(ORDERED_OBJS)
+	"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/bin/tiarmclang.exe" @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -gdwarf-3 -Wl,-m"2019D.map" -Wl,-i"C:/ti/mspm0_sdk_2_04_00_06/source" -Wl,-i"D:/CodeField/temp/2019D" -Wl,-i"D:/CodeField/temp/2019D/Debug/syscfg" -Wl,-i"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/lib" -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="2019D_linkInfo.xml" -Wl,--rom_model -o "2019D.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "empty.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "USER\BTN\BTN.o" "USER\SRC\tjc_usart_hmi.o" "USER\TICK\Tick.o" "USER\UART\UART.o" "USER\USERTASK\UserTask.o" 
-	-$(RM) "empty.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "USER\BTN\BTN.d" "USER\SRC\tjc_usart_hmi.d" "USER\TICK\Tick.d" "USER\UART\UART.d" "USER\USERTASK\UserTask.d" 
+	-$(RM) "empty.o" "ti_msp_dl_config.o" "startup_mspm0g350x_ticlang.o" "USER\BTN\BTN.o" "USER\GUI\GUI.o" "USER\SRC\tjc_usart_hmi.o" "USER\TICK\Tick.o" "USER\UART\UART.o" "USER\USERTASK\UserTask.o" 
+	-$(RM) "empty.d" "ti_msp_dl_config.d" "startup_mspm0g350x_ticlang.d" "USER\BTN\BTN.d" "USER\GUI\GUI.d" "USER\SRC\tjc_usart_hmi.d" "USER\TICK\Tick.d" "USER\UART\UART.d" "USER\USERTASK\UserTask.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

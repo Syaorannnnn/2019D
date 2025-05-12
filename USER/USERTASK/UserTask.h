@@ -5,6 +5,7 @@
 #include "../USER/UART/UART.h"
 #include "../USER/BTN/BTN.h"
 #include "../USER/TICK/Tick.h"
+#include "../USER/GUI/GUI.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -50,7 +51,8 @@ typedef struct Circuit_Paramter {
     float Ro;   //输出电阻
     float Av;   //电压增益
     float fh;   //3dB上截止频率
-}Circuit_Paramter;
+}Cir_param_t;
+
 
 extern volatile uint8_t TaskMark;
 extern BTNData_t BTNData;
@@ -60,7 +62,7 @@ extern volatile char uart_rx_buffer[RX_BUFFER_SIZE];
 extern volatile uint8_t uart_rx_index;
 extern volatile bool gCheckADC;
 
-extern Circuit_Paramter c_param;
+extern Cir_param_t c_param;
 extern TaskState_t InputImpState;
 extern TaskState_t OutputImpState;
 extern TaskState_t GainState;
@@ -96,5 +98,9 @@ float AD8310_Map(float Amp);
 void parse_rx_buffer(char* , float* , float* );
 uint16_t mapFreqToX(float freq);
 uint16_t mapGainToY(float gain);
+
+void get_3dbcutoff_freq(float *freq, float *gain);
+void Param_update(Cir_param_t cp);
+
 
 #endif

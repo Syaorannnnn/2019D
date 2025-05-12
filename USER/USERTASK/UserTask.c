@@ -76,8 +76,9 @@ void CalInputImp(void) {
             float R_i = InAmp / (SIGNAL_IN_mVPP - InAmp) * RESISTOR_IN;
             R_i = 1 / (1 / R_i - 1 / RESISTOR_BING);
             c_param.Ri = R_i;
-            sendString("Input Resistor: "); sendNum(R_i, 2); sendString("\r\n");
+            sendString("Input Resistor: ",UART_1_INST); sendNum(R_i, 2,UART_1_INST); sendString("\r\n",UART_1_INST);
 
+            Param_update(c_param);
             gCheckADC = false;
             InputImpState = IDLE;
             break;
@@ -113,7 +114,7 @@ void CalOutputImp(void) {
             if(Out_state == Open) {
                 uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
                 float vout_open = AD8310_Map((float)OutVol * 3300 / 4095);
-                sendString("Vout_Open: "); sendNum(vout_open, 2); sendString("\r\n");
+                sendString("Vout_Open: ",UART_1_INST); sendNum(vout_open, 2,UART_1_INST); sendString("\r\n",UART_1_INST);
                 
                 count_open++;
                 if(count_open >= ADC_NUM - 1) {
@@ -140,7 +141,7 @@ void CalOutputImp(void) {
             else if(Out_state == Load) {
                 uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
                 float vout_load = AD8310_Map((float)OutVol * 3300 / 4095);
-                sendString("Vout_Load: "); sendNum(vout_load, 2); sendString("\r\n");
+                sendString("Vout_Load: ",UART_1_INST); sendNum(vout_load, 2,UART_1_INST); sendString("\r\n",UART_1_INST);
 
                 count_load++;
                 if(count_load >= ADC_NUM - 1) {
@@ -153,7 +154,8 @@ void CalOutputImp(void) {
                     count_load = 0;
                     float R_o = (Vout_Open / Vout_Load - 1.0f) * RESISTOR_LOAD;
                     c_param.Ro = R_o;
-                    sendString("Output Resistor: "); sendNum(R_o, 2); sendString("\r\n");
+                    sendString("Output Resistor: ",UART_1_INST); sendNum(R_o, 2,UART_1_INST); sendString("\r\n",UART_1_INST);
+                    Param_update(c_param);
                     OutputImpState = IDLE;
                     gCheckADC = false;
                 }
@@ -195,12 +197,14 @@ void CalGain(void) {
             break;
         case PROCESS:
             uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+            uint16_t InVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_0);
+            float InAmp = AD8310_Map((float)InVol * 3300 / 4095);
             float OutAmp = AD8310_Map((float)OutVol * 3300 / 4095);
-            float Gain = OutAmp / SIGNAL_IN_mVPP;
+            float Gain = OutAmp / InAmp;
             c_param.Av = Gain;
 
-            sendString("Gain: "); sendNum(Gain, 2); sendString("\r\n");
-
+            sendString("Gain: ",UART_1_INST); sendNum(Gain, 2,UART_1_INST); sendString("\r\n",UART_1_INST);
+            Param_update(c_param);
             gCheckADC = false;
             GainState = IDLE;
             NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
@@ -253,11 +257,19 @@ void PlotAmpFreq(void) {
             
             if(lastX >= 0) {
                 //画线
+                draw_line(x, y, lastX, lastY, BLUE);
             }
+            //画第一个点
             else {
-                //画线
+                draw_dot(x,y, BLUE);
             }
             lastX = x; lastY = y;
+            //绘制完毕，可以计算上截频并更新参数了
+            if(point_index == MAX_POINTS - 1) 
+            {
+                get_3dbcutoff_freq(freq_buffer, gain_buffer);
+                Param_update(c_param);
+            }
             PlotState = WAIT_COMMAND;
             break;
     }
@@ -311,4 +323,53 @@ uint16_t mapGainToY(float gain) {
     if(gain < 0) gain = 0;
     uint16_t res = (uint16_t)((1.0f - gain / GAIN_MAX) * 1 /*此处应为显示屏的高度*/);
     return res;
+}
+
+/**
+ * @brief 获取-3dB点的对应频率（上截止频率）
+ * 
+ * @param freq 
+ * @param gain 
+ */
+void get_3dbcutoff_freq(float *freq, float *gain)
+{
+    float gain_max = gain[0];
+    for(int i = 1; i < MAX_POINTS; i++)
+    {
+        if(gain[i] > gain_max)      gain_max = gain[i];
+    }
+
+    float gain_cutoff = 0.707 * gain_max;
+    //反方向遍历寻找上截频
+    for(int j = MAX_POINTS; j > 0; j--)
+    {
+        //找到第一个大于等于-3dB增益的那个频率点
+        if(gain[j] >= gain_cutoff)
+        {
+            c_param.fh = freq[j];
+            break;
+        }
+    }
+}
+
+
+/**
+ * @brief 更新屏幕上电路参数
+ * 
+ * @param cp 
+ */
+void Param_update(Cir_param_t cp)
+{
+    char str1[30];
+    char str2[30];
+    char str3[30];
+    char str4[30];
+    sprintf(str1, "Ri.txt=\"%.2f Ω\"\xff\xff\xff",cp.Ri);
+    sendString(str1, UART_2_INST);
+    sprintf(str2, "Ro.txt=\"%.2f Ω\"\xff\xff\xff",cp.Ro);
+    sendString(str2, UART_2_INST);
+    sprintf(str3, "Av.txt=\"%.2f\"\xff\xff\xff",cp.Av);
+    sendString(str3, UART_2_INST);
+    sprintf(str4, "fh.txt=\"%.2f\"\xff\xff\xff",cp.fh);
+    sendString(str4, UART_2_INST);  
 }

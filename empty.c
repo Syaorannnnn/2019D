@@ -12,7 +12,7 @@ volatile bool uart_rx_finish = false;
 volatile char uart_rx_buffer[RX_BUFFER_SIZE];
 volatile uint8_t uart_rx_index = 0;
 
-Circuit_Paramter c_param = {0.0};
+Cir_param_t c_param = {0.0};
 TaskState_t InputImpState = IDLE;
 TaskState_t OutputImpState = IDLE;
 TaskState_t GainState = IDLE;

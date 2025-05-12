@@ -1,6 +1,7 @@
 # FIXED
 
-empty.o: ../empty.c ti_msp_dl_config.h \
+USER/GUI/GUI.o: ../USER/GUI/GUI.c ../USER/GUI/GUI.h \
+ ti_msp_dl_config.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/DeviceFamily.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/m0p/mspm0g350x.h \
@@ -74,12 +75,8 @@ empty.o: ../empty.c ti_msp_dl_config.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h \
- D:/CodeField/temp/2019D/USER/UART/UART.h \
- D:/CodeField/temp/2019D/USER/BTN/BTN.h \
- D:/CodeField/temp/2019D/USER/TICK/Tick.h \
- D:/CodeField/temp/2019D/USER/BTN/BTN.h \
- D:/CodeField/temp/2019D/USER/USERTASK/UserTask.h \
- D:/CodeField/temp/2019D/USER/GUI/GUI.h
+ D:/CodeField/temp/2019D/USER/UART/UART.h
+../USER/GUI/GUI.h:
 ti_msp_dl_config.h:
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h:
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/DeviceFamily.h:
@@ -155,8 +152,3 @@ C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h:
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h:
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h:
 D:/CodeField/temp/2019D/USER/UART/UART.h:
-D:/CodeField/temp/2019D/USER/BTN/BTN.h:
-D:/CodeField/temp/2019D/USER/TICK/Tick.h:
-D:/CodeField/temp/2019D/USER/BTN/BTN.h:
-D:/CodeField/temp/2019D/USER/USERTASK/UserTask.h:
-D:/CodeField/temp/2019D/USER/GUI/GUI.h:
