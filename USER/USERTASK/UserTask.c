@@ -245,8 +245,11 @@ void PlotAmpFreq(void) {
             break;
         case DRAW_POINT:
             uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+            uint16_t InVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_0);
+            float InAmp = AD8310_Map((float)InVol * 3300 / 4095);
             float OutAmp = AD8310_Map((float)OutVol * 3300 / 4095);
-            float gain = OutAmp / input_amp;
+            // float gain = OutAmp / InAmp;
+            float gain = 100;
             if(point_index < MAX_POINTS) {
                 freq_buffer[point_index] = input_freq;
                 gain_buffer[point_index] = gain;
@@ -255,12 +258,12 @@ void PlotAmpFreq(void) {
             uint16_t x = mapFreqToX(input_freq);
             uint16_t y = mapGainToY(gain);
             
-            if(lastX >= 0) {
+            if(lastX >= 400 && lastX <= 700) {
                 //画线
                 draw_line(x, y, lastX, lastY, BLUE);
             }
             //画第一个点
-            else {
+            else{
                 draw_dot(x,y, BLUE);
             }
             lastX = x; lastY = y;
@@ -308,11 +311,12 @@ void parse_rx_buffer(char* buffer, float* freq, float* mag) {
 @brief: 将频率映射到显示屏的X坐标
 */
 uint16_t mapFreqToX(float freq) {
-    float logF = log10f(freq);
-    float logStart = log10f(FREQ_START);
-    float logEnd = log10f(FREQ_END);
-    uint16_t res = (uint16_t)(((logF - logStart) / (logEnd - logStart)) * 1 /*此处应为显示屏的宽度*/);
-    return res;
+    float logF = log10f(freq) * 10 - 20;
+    float logStart = log10f(FREQ_START) * 10 - 20;
+    float logEnd = log10f(FREQ_END) * 10 - 20;
+    uint32_t res = 400 + (uint32_t)(((logF - logStart) / (logEnd - logStart)) * 300.0 /*此处应为显示屏的宽度*/);
+    uint16_t result = (res <= 700) ? res : 700;
+    return result;
 }
 
 /*
@@ -321,8 +325,9 @@ uint16_t mapFreqToX(float freq) {
 uint16_t mapGainToY(float gain) {
     if(gain > GAIN_MAX) gain = GAIN_MAX;
     if(gain < 0) gain = 0;
-    uint16_t res = (uint16_t)((1.0f - gain / GAIN_MAX) * 1 /*此处应为显示屏的高度*/);
-    return res;
+    uint32_t res = 350 - (uint32_t)((gain / GAIN_MAX) * 300.0 /*此处应为显示屏的高度*/);
+    uint16_t result = (res >= 50) ? res : 50;
+    return result;
 }
 
 /**

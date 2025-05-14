@@ -18,8 +18,8 @@
 
 #define MAX_POINTS  64      //扫频点数
 #define GAIN_MAX 200.0f     //最大增益
-#define FREQ_START 100.0f   //起始频率
-#define FREQ_END 300000.0f  //终止频率
+#define FREQ_START 100   //起始频率
+#define FREQ_END 1000000  //终止频率
 
 enum {
     InputImp = 1,   //输入阻抗

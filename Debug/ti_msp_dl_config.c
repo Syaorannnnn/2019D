@@ -113,8 +113,6 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
         GPIO_UART_2_IOMUX_TX, GPIO_UART_2_IOMUX_TX_FUNC);
     DL_GPIO_initPeripheralInputFunction(
         GPIO_UART_2_IOMUX_RX, GPIO_UART_2_IOMUX_RX_FUNC);
-    DL_GPIO_initPeripheralOutputFunction(
-        GPIO_UART_0_IOMUX_TX, GPIO_UART_0_IOMUX_TX_FUNC);
     DL_GPIO_initPeripheralInputFunction(
         GPIO_UART_0_IOMUX_RX, GPIO_UART_0_IOMUX_RX_FUNC);
     DL_GPIO_initPeripheralOutputFunction(
@@ -236,12 +234,6 @@ SYSCONFIG_WEAK void SYSCFG_DL_UART_2_init(void)
     DL_UART_Main_setBaudRateDivisor(UART_2_INST, UART_2_IBRD_40_MHZ_115200_BAUD, UART_2_FBRD_40_MHZ_115200_BAUD);
 
 
-    /* Configure Interrupts */
-    DL_UART_Main_enableInterrupt(UART_2_INST,
-                                 DL_UART_MAIN_INTERRUPT_RX);
-    /* Setting the Interrupt Priority */
-    NVIC_SetPriority(UART_2_INST_INT_IRQN, 1);
-
 
     DL_UART_Main_enable(UART_2_INST);
 }
@@ -253,7 +245,7 @@ static const DL_UART_Main_ClockConfig gUART_0ClockConfig = {
 
 static const DL_UART_Main_Config gUART_0Config = {
     .mode        = DL_UART_MAIN_MODE_NORMAL,
-    .direction   = DL_UART_MAIN_DIRECTION_TX_RX,
+    .direction   = DL_UART_MAIN_DIRECTION_RX,
     .flowControl = DL_UART_MAIN_FLOW_CONTROL_NONE,
     .parity      = DL_UART_MAIN_PARITY_NONE,
     .wordLength  = DL_UART_MAIN_WORD_LENGTH_8_BITS,
@@ -273,6 +265,12 @@ SYSCONFIG_WEAK void SYSCFG_DL_UART_0_init(void)
     DL_UART_Main_setOversampling(UART_0_INST, DL_UART_OVERSAMPLING_RATE_16X);
     DL_UART_Main_setBaudRateDivisor(UART_0_INST, UART_0_IBRD_40_MHZ_115200_BAUD, UART_0_FBRD_40_MHZ_115200_BAUD);
 
+
+    /* Configure Interrupts */
+    DL_UART_Main_enableInterrupt(UART_0_INST,
+                                 DL_UART_MAIN_INTERRUPT_RX);
+    /* Setting the Interrupt Priority */
+    NVIC_SetPriority(UART_0_INST_INT_IRQN, 0);
 
 
     DL_UART_Main_enable(UART_0_INST);
