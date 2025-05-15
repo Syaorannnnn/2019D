@@ -3,7 +3,7 @@
  * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
  * @cliArgs --device "MSPM0G350X" --part "Default" --package "LQFP-48(PT)" --product "mspm0_sdk@2.04.00.06"
  * @v2CliArgs --device "MSPM0G3507" --package "LQFP-48(PT)" --product "mspm0_sdk@2.04.00.06"
- * @versions {"tool":"1.23.0+4000"}
+ * @versions {"tool":"1.21.1+3772"}
  */
 
 /**
@@ -54,10 +54,10 @@ ADC121.sampClkSrc                 = "DL_ADC12_CLOCK_ULPCLK";
 ADC121.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
 ADC121.powerDownMode              = "DL_ADC12_POWER_DOWN_MODE_MANUAL";
 ADC121.sampleTime0                = "40 us";
-ADC121.adcPin0Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
 ADC121.peripheral.$assign         = "ADC0";
 ADC121.peripheral.adcPin0.$assign = "PA27";
 ADC121.peripheral.adcPin1.$assign = "PA26";
+ADC121.adcPin0Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
 ADC121.adcPin1Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric3";
 
 const Board                       = scripting.addModule("/ti/driverlib/Board", {}, false);
@@ -124,7 +124,6 @@ SYSTICK.periodEnable    = true;
 SYSTICK.period          = 80000;
 
 UART1.targetBaudRate                   = 115200;
-UART1.enabledInterrupts                = ["RX"];
 UART1.interruptPriority                = "1";
 UART1.$name                            = "UART_2";
 UART1.peripheral.$assign               = "UART2";
@@ -142,14 +141,11 @@ UART1.rxPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 
 UART2.targetBaudRate                   = 115200;
 UART2.$name                            = "UART_0";
+UART2.direction                        = "RX";
+UART2.enabledInterrupts                = ["RX"];
+UART2.interruptPriority                = "0";
 UART2.peripheral.$assign               = "UART0";
 UART2.peripheral.rxPin.$assign         = "PA1";
-UART2.peripheral.txPin.$assign         = "PA0";
-UART2.txPinConfig.direction            = scripting.forceWrite("OUTPUT");
-UART2.txPinConfig.hideOutputInversion  = scripting.forceWrite(false);
-UART2.txPinConfig.onlyInternalResistor = scripting.forceWrite(false);
-UART2.txPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
-UART2.txPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric4";
 UART2.rxPinConfig.hideOutputInversion  = scripting.forceWrite(false);
 UART2.rxPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 UART2.rxPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
