@@ -16,6 +16,7 @@ Cir_param_t c_param = {0.0};
 TaskState_t InputImpState = IDLE;
 TaskState_t OutputImpState = IDLE;
 TaskState_t GainState = IDLE;
+TaskState_t ErrGetState = IDLE;
 
 volatile uint8_t Out_state = Load;
 volatile float Vout_Load = 0.0;     //接入负载时的输出电压
@@ -39,6 +40,8 @@ volatile float gain_buffer[MAX_POINTS];
 BTNData_t BTNData = {0};
 
 volatile uint8_t TaskMark = 0;  //执行任务标志位，初始不执行任何任务
+
+Err_code_t Err_code = NORMAL;   //默认电路正常
 
 int main(void)
 {

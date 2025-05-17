@@ -21,11 +21,51 @@
 #define FREQ_START 100   //起始频率
 #define FREQ_END 1000000  //终止频率
 
+//电平容忍度
+#define BEAR_LEVEL 0.10f
+
+#define R1_BROKEN_AD8310OUT_ELECTRICAL_LEVEL 1.04f
+#define R2_BROKEN_AD8310OUT_ELECTRICAL_LEVEL 1.12f
+#define R3_BROKEN_AD8310OUT_ELECTRICAL_LEVEL 1.03f
+#define R4_BROKEN_AD8310OUT_ELECTRICAL_LEVEL 1.01f
+#define R1_BROKEN_AD8310IN_ELECTRICAL_LEVEL 1.75f
+#define R2_BROKEN_AD8310IN_ELECTRICAL_LEVEL 1.30f
+#define R3_BROKEN_AD8310IN_ELECTRICAL_LEVEL 1.23f
+#define R4_BROKEN_AD8310IN_ELECTRICAL_LEVEL 1.72f
+
+#define C1_BROKEN_AD8310OUT_ELECTRICAL_LEVEL 1.10f
+#define C2_BROKEN_AD8310OUT_ELECTRICAL_LEVEL 1.83f
+//#define C3_BROKEN_AD8310OUT_ELECTRICAL_LEVEL 1.04f
+#define C1_BROKEN_AD8310IN_ELECTRICAL_LEVEL 1.78f
+#define C2_BROKEN_AD8310IN_ELECTRICAL_LEVEL 1.73f
+//#define C3_BROKEN_AD8310IN_ELECTRICAL_LEVEL 1.04f
+
+#define R1_SHORT_AD8310OUT_ELECTRICAL_LEVEL 2.82f
+#define R2_SHORT_AD8310OUT_ELECTRICAL_LEVEL 1.05f
+#define R3_SHORT_AD8310OUT_ELECTRICAL_LEVEL 1.37f
+#define R4_SHORT_AD8310OUT_ELECTRICAL_LEVEL 1.10f
+#define R1_SHORT_AD8310IN_ELECTRICAL_LEVEL 1.20f
+#define R2_SHORT_AD8310IN_ELECTRICAL_LEVEL 1.35f
+#define R3_SHORT_AD8310IN_ELECTRICAL_LEVEL 1.62f
+#define R4_SHORT_AD8310IN_ELECTRICAL_LEVEL 1.36f
+
+#define C1_SHORT_AD8310OUT_ELECTRICAL_LEVEL 2.18f
+#define C2_SHORT_AD8310OUT_ELECTRICAL_LEVEL 1.10f
+#define C3_SHORT_AD8310OUT_ELECTRICAL_LEVEL 1.01f
+#define C1_SHORT_AD8310IN_ELECTRICAL_LEVEL 1.72f
+#define C2_SHORT_AD8310IN_ELECTRICAL_LEVEL 1.28f
+#define C3_SHORT_AD8310IN_ELECTRICAL_LEVEL 1.23f
+
+
+
+
+
 enum {
     InputImp = 1,   //输入阻抗
     OutputImp = 2,  //输出阻抗
     Gain = 3,       //增益
     AmpFreq = 4,    //幅频曲线
+    ErrGet = 5,     //测量错误
 };
 //测量输出电阻时的状态
 enum {
@@ -53,6 +93,25 @@ typedef struct Circuit_Paramter {
     float fh;   //3dB上截止频率
 }Cir_param_t;
 
+//定义错误码
+typedef enum {
+    NORMAL,
+    R1_BROKEN,
+    R2_BROKEN,
+    R3_BROKEN,
+    R4_BROKEN,
+    C1_BROKEN,
+    C2_BROKEN,
+    R1_SHORT,
+    R2_SHORT,
+    R3_SHORT,
+    R4_SHORT,
+    C1_SHORT,
+    C2_SHORT,
+    C3_SHORT
+
+}Err_code_t;
+
 
 extern volatile uint8_t TaskMark;
 extern BTNData_t BTNData;
@@ -66,6 +125,7 @@ extern Cir_param_t c_param;
 extern TaskState_t InputImpState;
 extern TaskState_t OutputImpState;
 extern TaskState_t GainState;
+extern TaskState_t ErrGetState;
 
 //测量输出阻抗需要的全局变量
 extern volatile uint8_t Out_state;
@@ -88,6 +148,9 @@ extern volatile float input_amp;
 extern volatile float freq_buffer[MAX_POINTS];
 extern volatile float gain_buffer[MAX_POINTS];
 
+//检测错误所需
+extern Err_code_t Err_code;
+
 void TaskScan(void);
 void BTNScan(void);
 void CalInputImp(void);
@@ -101,6 +164,9 @@ uint16_t mapGainToY(float gain);
 
 void get_3dbcutoff_freq(float *freq, float *gain);
 void Param_update(Cir_param_t cp);
+
+void CalErrGet(void);
+void Err_Screen_Update();
 
 
 #endif
