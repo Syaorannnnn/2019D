@@ -21,6 +21,8 @@ void TaskScan(void) {
             //sendString("PlotAmpFreq()\r\n");
             PlotAmpFreq();
             break;
+        case ErrGet:
+            CalErrGet();
         default:
             break;
     }
@@ -50,6 +52,11 @@ void BTNScan(void) {
         DL_GPIO_togglePins(GPIO_LED_PORT, GPIO_LED_B_PIN);
         //sendString("up pressed\r\n");
         TaskMark = AmpFreq;     //up按键对应“绘制幅频曲线”
+    }
+    if(BTNData.mid) {
+        DL_GPIO_togglePins(GPIO_LED_PORT, GPIO_LED_B_PIN);
+        //sendString("mid pressed\r\n");
+        TaskMark = ErrGet;     //up按键对应“绘制幅频曲线”
     }
 }
 
@@ -377,4 +384,145 @@ void Param_update(Cir_param_t cp)
     sendString(str3, UART_2_INST);
     sprintf(str4, "fh.txt=\"%.2f\"\xff\xff\xff",cp.fh);
     sendString(str4, UART_2_INST);  
+}
+
+void CalErrGet(void){
+    switch (ErrGetState) {
+        case IDLE:
+            NVIC_EnableIRQ(ADC12_0_INST_INT_IRQN);  //使能ADC中断
+            DL_ADC12_enableConversions(ADC12_0_INST);
+            DL_ADC12_startConversion(ADC12_0_INST);
+            DL_GPIO_clearPins(GPIO_CON_PORT, GPIO_CON_OUT_PIN);   //断开负载
+            DL_Common_delayCycles(32000000);    //延时1s
+            ErrGetState = WAIT;
+            break;
+        case WAIT:
+            if(gCheckADC) {
+                ErrGetState = PROCESS;
+            }
+            break;
+        case PROCESS:
+            uint16_t OutVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_1);
+            uint16_t InVol = DL_ADC12_getMemResult(ADC12_0_INST, DL_ADC12_MEM_IDX_0);
+            float InAD8310_Electrical_Level = (float)InVol * 3.3f / 4096;
+            float OutAD8310_Electrical_Level = (float)OutVol * 3.3f / 4096;
+
+            //开路检测
+            if(fabsf(OutAD8310_Electrical_Level - R1_BROKEN_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R1_BROKEN_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R1_BROKEN;
+                sendString("Err: R1 Broken",UART_1_INST);sendString("\r\n",UART_1_INST);
+            }else if(fabsf(OutAD8310_Electrical_Level - R2_BROKEN_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R2_BROKEN_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R2_BROKEN;
+                sendString("Err: R2 Broken",UART_1_INST);sendString("\r\n",UART_1_INST);
+            }else if(fabsf(OutAD8310_Electrical_Level - R3_BROKEN_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R3_BROKEN_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R3_BROKEN;
+                sendString("Err: R3 Broken",UART_1_INST);sendString("\r\n",UART_1_INST);
+            }else if(fabsf(OutAD8310_Electrical_Level - R4_BROKEN_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R4_BROKEN_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R4_BROKEN;
+                sendString("Err: R4 Broken",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - C1_BROKEN_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - C1_BROKEN_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = C1_BROKEN;
+                sendString("Err: C1 Broken",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - C2_BROKEN_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - C2_BROKEN_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = C2_BROKEN;
+                sendString("Err: C2 Broken",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }
+            //短路检测
+            else if(fabsf(OutAD8310_Electrical_Level - R1_SHORT_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R1_SHORT_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R1_SHORT;
+                sendString("Err: R1 Short",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - R2_SHORT_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R2_SHORT_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R2_SHORT;
+                sendString("Err: R2 Short",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - R3_SHORT_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R3_SHORT_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R3_SHORT;
+                sendString("Err: R3 Short",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - R4_SHORT_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - R4_SHORT_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = R4_SHORT;
+                sendString("Err: R4 Short",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - C1_SHORT_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - C1_SHORT_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = C1_SHORT;
+                sendString("Err: C1 Short",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - C2_SHORT_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - C2_SHORT_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = C2_SHORT;
+                sendString("Err: C2 Short",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }else if(fabsf(OutAD8310_Electrical_Level - C3_SHORT_AD8310OUT_ELECTRICAL_LEVEL) <= BEAR_LEVEL && fabsf(InAD8310_Electrical_Level - C3_SHORT_AD8310IN_ELECTRICAL_LEVEL) <= BEAR_LEVEL){
+                Err_code = C3_SHORT;
+                sendString("Err: C3 Short",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }
+            //都没检测到，为正常状态
+            else{
+                Err_code = NORMAL;
+                sendString("Normal :-)",UART_1_INST);sendString("\r\n",UART_1_INST);
+
+            }
+
+            Err_Screen_Update();
+            gCheckADC = false;
+            ErrGetState = IDLE;
+            NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
+            break;
+    }
+    if(TaskMark != ErrGet) {
+        ErrGetState = IDLE;
+        NVIC_DisableIRQ(ADC12_0_INST_INT_IRQN);
+    }
+}
+
+void Err_Screen_Update(){
+    switch (Err_code) {
+        case NORMAL:
+            //更改屏幕对应的txt
+            break;
+        case R1_BROKEN:
+
+            break;
+        case R2_BROKEN:
+
+            break;
+        case R3_BROKEN:
+
+            break;
+        case R4_BROKEN:
+
+            break;
+        case C1_BROKEN:
+
+            break;
+        case C2_BROKEN:
+
+            break;
+        case R1_SHORT:
+
+            break;
+        case R2_SHORT:
+
+            break;
+        case R3_SHORT:
+
+            break;
+        case R4_SHORT:
+
+            break;
+        case C1_SHORT:
+
+            break;
+        case C2_SHORT:
+
+            break;
+        case C3_SHORT:
+
+            break;
+        
+    }
 }
