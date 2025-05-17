@@ -372,18 +372,15 @@ void get_3dbcutoff_freq(float *freq, float *gain)
  */
 void Param_update(Cir_param_t cp)
 {
-    char str1[30];
-    char str2[30];
-    char str3[30];
-    char str4[30];
-    sprintf(str1, "Ri.txt=\"%.2f Ω\"\xff\xff\xff",cp.Ri);
-    sendString(str1, UART_2_INST);
-    sprintf(str2, "Ro.txt=\"%.2f Ω\"\xff\xff\xff",cp.Ro);
-    sendString(str2, UART_2_INST);
-    sprintf(str3, "Av.txt=\"%.2f\"\xff\xff\xff",cp.Av);
-    sendString(str3, UART_2_INST);
-    sprintf(str4, "fh.txt=\"%.2f\"\xff\xff\xff",cp.fh);
-    sendString(str4, UART_2_INST);  
+    char str[30];
+    sprintf(str, "Ri.txt=\"%.2fΩ\"\xff\xff\xff",cp.Ri);
+    sendString(str, UART_2_INST);
+    sprintf(str, "Ro.txt=\"%.2fΩ\"\xff\xff\xff",cp.Ro);
+    sendString(str, UART_2_INST);
+    sprintf(str, "Av.txt=\"%.2f\"\xff\xff\xff",cp.Av);
+    sendString(str, UART_2_INST);
+    sprintf(str, "fh.txt=\"%.2fHz\"\xff\xff\xff",cp.fh);
+    sendString(str, UART_2_INST);  
 }
 
 void CalErrGet(void){
@@ -480,48 +477,129 @@ void CalErrGet(void){
 }
 
 void Err_Screen_Update(){
+    char str[30];
     switch (Err_code) {
+        /*  正常状态    */
         case NORMAL:
-            //更改屏幕对应的txt
             break;
+        /*  元件开路    */
         case R1_BROKEN:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R1 开路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case R2_BROKEN:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R2 开路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case R3_BROKEN:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R3 开路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case R4_BROKEN:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R4 开路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case C1_BROKEN:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"C1 开路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case C2_BROKEN:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"C2 开路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
+        /*  元件短路    */
         case R1_SHORT:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R1 短路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case R2_SHORT:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R2 短路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case R3_SHORT:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R3 短路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case R4_SHORT:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"R4 短路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case C1_SHORT:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"C1 短路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case C2_SHORT:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"C2 短路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         case C3_SHORT:
-
+            sprintf(str,"status.pco=RED\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"status.txt=\"异常\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
+            sprintf(str,"eor.pco=RED\xff\xff\xff");
+            sprintf(str,"eor.txt=\"C3 短路\"\xff\xff\xff");
+            sendString(str,UART_2_INST);
             break;
         
     }
