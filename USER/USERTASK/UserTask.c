@@ -184,9 +184,10 @@ void CalOutputImp(void) {
     }
 }
 
-/*
-@brief: 测量增益
-*/
+/**
+ * @brief 测量增益
+ * 
+ */
 void CalGain(void) {
     switch (GainState) {
         case IDLE:
@@ -353,7 +354,7 @@ void get_3dbcutoff_freq(float *freq, float *gain)
 
     float gain_cutoff = 0.707 * gain_max;
     //反方向遍历寻找上截频
-    for(int j = MAX_POINTS; j > 0; j--)
+    for(int j = MAX_POINTS - 1; j >= 0; j--)
     {
         //找到第一个大于等于-3dB增益的那个频率点
         if(gain[j] >= gain_cutoff)
