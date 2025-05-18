@@ -21,6 +21,8 @@
 #define FREQ_START 100   //起始频率
 #define FREQ_END 1000000  //终止频率
 
+#define EPSILON 0.05f   //幅频曲线稳定区门限判定误差
+
 //电平容忍度
 #define BEAR_LEVEL 0.10f
 
