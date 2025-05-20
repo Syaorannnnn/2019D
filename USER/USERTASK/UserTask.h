@@ -3,6 +3,7 @@
 
 #include "ti_msp_dl_config.h"
 #include "../USER/UART/UART.h"
+#include "./DSP/DSP.h"
 #include "../USER/BTN/BTN.h"
 #include "../USER/TICK/Tick.h"
 #include "../USER/GUI/GUI.h"

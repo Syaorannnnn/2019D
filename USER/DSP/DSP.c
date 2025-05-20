@@ -63,12 +63,12 @@
     //静态变量，标记数据传入的个数
     static int data_num = 0;
     //数据个数大于等于3，标记为满
-    bool isFull = false;
     
     //缓冲区未满，数据只进不出
-    if(data_num < MEDIAN_LENTH && !isFull)
+    if(data_num < MEDIAN_LENTH)
     {
         buffer[data_num++] = data;
+        return data;
     }
     //缓冲区已满，数据尾进头出
     else
@@ -77,11 +77,8 @@
         memcpy(&buffer[0],&buffer[1],(MEDIAN_LENTH - 1) * 4);
         //在尾部加入新的data
         buffer[MEDIAN_LENTH - 1] = data;
-        isFull = true;
-    }
-    //数据区满时才排序
-    if(isFull)
-    {
+
+        //数据区满时才排序
         //冒泡排序（升序）
         for(int i = 0; i < MEDIAN_LENTH - 1; i++)
         {
@@ -89,13 +86,15 @@
             {
                 if(buffer[j] > buffer[j + 1])
                 {
-                    float max_temp = buffer[j];
+                    float temp = buffer[j];
                     buffer[j] = buffer[j + 1];
-                    buffer[j + 1] = max_temp;
+                    buffer[j + 1] = temp;
                 }
             }
         }
+
+        return buffer[MEDIAN_LENTH / 2]; //返回中间值
     }
     
-    return buffer[MEDIAN_LENTH / 2];
+    
  }

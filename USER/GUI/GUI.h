@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include "ti_msp_dl_config.h"
 #include "../USER/UART/UART.h"
+
+/*
+*/
+
 /*********************************************/
 /***    参数定义    ***/
 #define     BUFFER_LEN_MAX      100     //发送指令缓冲区最大长度

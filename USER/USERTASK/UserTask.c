@@ -228,6 +228,7 @@ void CalGain(void) {
 @brief: 绘制幅频曲线
 */
 void PlotAmpFreq(void) {
+    uint16_t x,y;
     switch (PlotState) {
         case WAIT_COMMAND:
             NVIC_EnableIRQ(UART_0_INST_INT_IRQN);   //开启串口中断
@@ -259,12 +260,20 @@ void PlotAmpFreq(void) {
             // float gain = OutAmp / InAmp;
             float gain = 100;
             if(point_index < MAX_POINTS) {
+                // freq_buffer[point_index] = input_freq;
+                // gain_buffer[point_index] = gain;
+
                 freq_buffer[point_index] = input_freq;
-                gain_buffer[point_index] = gain;
+                gain_buffer[point_index] = moving_mean_filter(gain);    //对增益进行滑动均值滤波
+                // gain_buffer[point_index] = median_filter(gain);      //对增益进行中值滤波
+
+                x = mapFreqToX(input_freq);
+                y = mapGainToY(gain_buffer[point_index]);
+
                 point_index++;
             }
-            uint16_t x = mapFreqToX(input_freq);
-            uint16_t y = mapGainToY(gain);
+            // uint16_t x = mapFreqToX(input_freq);
+            // uint16_t y = mapGainToY(gain);
             
             if(lastX >= 400 && lastX <= 700) {
                 //画线
@@ -374,13 +383,13 @@ void get_3dbcutoff_freq(float *freq, float *gain)
 void Param_update(Cir_param_t cp)
 {
     char str[30];
-    sprintf(str, "Ri.txt=\"%.2fΩ\"\xff\xff\xff",cp.Ri);
+    sprintf(str, "Ri.txt=\"%.2f kΩ\"\xff\xff\xff",(cp.Ri / 1000));
     sendString(str, UART_2_INST);
-    sprintf(str, "Ro.txt=\"%.2fΩ\"\xff\xff\xff",cp.Ro);
+    sprintf(str, "Ro.txt=\"%.2f kΩ\"\xff\xff\xff",(cp.Ro / 1000));
     sendString(str, UART_2_INST);
     sprintf(str, "Av.txt=\"%.2f\"\xff\xff\xff",cp.Av);
     sendString(str, UART_2_INST);
-    sprintf(str, "fh.txt=\"%.2fHz\"\xff\xff\xff",cp.fh);
+    sprintf(str, "fh.txt=\"%.2f kHz\"\xff\xff\xff",(cp.fh / 1000));
     sendString(str, UART_2_INST);  
 }
 

@@ -18,6 +18,7 @@ extern "C" {
 #define MEDIAN_LENTH 3 //中值滤波器长度
 
 /***********************滤波器*****************************/
+
 float moving_mean_filter(float data);
 float median_filter(float data);
 
